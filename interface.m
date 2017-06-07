@@ -377,7 +377,7 @@ else
     % configure the callback
     handles.s.BytesAvailableFcnCount = 2;
     handles.s.BytesAvailableFcnMode = 'byte';
-    handles.s.BytesAvailableFcn = {@availTest, handles.figure1};
+    handles.s.BytesAvailableFcn = {@serialCallback, handles.figure1};
     
     % open the port
     fopen(handles.s);

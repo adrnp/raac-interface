@@ -1,4 +1,4 @@
-function [] = availTest(obj, event, figureObj)
+function [] = serialCallback(obj, event, figureObj)
 
 % don't even try to parse if there is no data there!
 if (obj.BytesAvailable <= 0)
