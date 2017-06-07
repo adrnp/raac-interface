@@ -1,0 +1,5 @@
+# matlab's temporary files
+*.asv
+
+# saved data files
+*.mat
