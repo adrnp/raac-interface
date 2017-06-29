@@ -117,89 +117,80 @@ end
 
 
 function [] = handleMeasurement(buf, figObj)
-handles = guidata(figObj);
-measInfo = handles.measurementInfo;
 
 % extract the data from the buffer
 timestamp = typecast(buf(1:4), 'uint32');
 measIndex = buf(5);
 signalStrength = typecast(buf(6:9), 'single');
-azimuth = cast(typecast(buf(10:13), 'int32'), 'double');
-elevation = cast(typecast(buf(14:17), 'int32'), 'double');
+azimuth = cast(typecast(buf(10:13), 'int32'), 'double')/1e6;
+elevation = cast(typecast(buf(14:17), 'int32'), 'double')/1e6;
 
-% fprintf('Az: %f (%3.6f) \t El: %f (%3.6f)\n', azimuth, azimuth/1e6, elevation, elevation/1e6);
 
-azimuth = azimuth/1e6;
-elevation = elevation/1e6;
+% get the information fro mthe GUI
+handles = guidata(figObj);
+measInfo = handles.measurementInfo;
 
-% find the index for the azimuth
-[~, azi] = min(abs(azimuth - measInfo.azimuth));
-[~, eli] = min(abs(elevation - measInfo.elevation));
-measInfo.measurements(azi, eli, measIndex) = signalStrength;
-measInfo.ssi = measInfo.ssi + 1;
+% check to see if we are running a test
+data = get(hObject, 'UserData');
+isRunning = false;
+if isfield(data, 'running')
+    isRunning = data.started;
+end
 
-% update the display every time we have a new angle
-if azimuth ~= measInfo.lastAz || elevation ~= measInfo.lastEl
-    measInfo.lastAz = azimuth;
-    measInfo.lastEl = elevation;
+if isRunning
+    % find the index for the azimuth
+    [~, azi] = min(abs(azimuth - measInfo.azimuth));
+    [~, eli] = min(abs(elevation - measInfo.elevation));
+    measInfo.measurements(azi, eli, measIndex) = signalStrength;
+    measInfo.ssi = measInfo.ssi + 1;
 
-    % reset the index for storing the measurements
-    measInfo.ssi = 1;
+    % update the display every time we have a new angle
+    if azimuth ~= measInfo.lastAz || elevation ~= measInfo.lastEl
+        measInfo.lastAz = azimuth;
+        measInfo.lastEl = elevation;
 
+        % reset the index for storing the measurements
+        measInfo.ssi = 1;
+
+        % display the values in the text boxes
+        set(handles.text_azimuth, 'String', num2str(azimuth));
+        set(handles.text_elevation, 'String', num2str(elevation));
+        set(handles.text_signal_strength, 'String', num2str(signalStrength));
+
+        % plot the el = 90 plot
+        figure(1);
+        plot(measInfo.azimuth(1:end-1), mean(measInfo.measurements(1:end-1,end,:),3), 'x-');
+        title('sweep at el = 90');
+
+        % plot the az = 0 plot
+        figure(2);
+        plot(measInfo.elevation, mean(measInfo.measurements(1,:,:),3), 'x-');
+        title('sweep at az = 0');
+
+        % plot the current slice (so at the current elevation, all the
+        % azimuths)
+        figure(3);
+        plot(measInfo.azimuth(1:end-1), mean(measInfo.measurements(1:end-1,eli,:), 3), 'x-');
+        title('current azimuth sweep');
+
+        % TODO: 3D plot
+
+        % update the axes
+        guidata(figObj, handles);
+        pause(0.01);
+    end
+    
+    % update the stored measurement info (in the handles)
+    handles.measurementInfo = measInfo;
+    guidata(figObj, handles);
+else
     % display the values in the text boxes
     set(handles.text_azimuth, 'String', num2str(azimuth));
     set(handles.text_elevation, 'String', num2str(elevation));
     set(handles.text_signal_strength, 'String', num2str(signalStrength));
-
-    
-%     % plot the el = 90 plot
-% %     axes(handles.axes1);
-    figure(1);
-    plot(measInfo.azimuth(1:end-1), mean(measInfo.measurements(1:end-1,end,:),3), 'x-');
-% %     handles.axes1 = plot(handles.axes1, deg2rad(measInfo.azimuth), mean(measInfo.measurements(:,1,:),3), 'x');
-%     polar(deg2rad(measInfo.azimuth), mean(measInfo.measurements(:,end,:),3), 'x-');
-    title('sweep at el = 90');
-%     ax = gca;
-%     ax.ThetaDir = 'clockwise';
-%     ax.ThetaZeroLocation = 'top';
-% %     handles.axes1 = gca;
-% %     handles.axes1.ThetaDir = 'clockwise';
-% %     handles.axes1.ThetaZeroLocation = 'top';
-% 
-%     % plot the az = 0 plot
-% %     axes(handles.axes2);
-    figure(2);
-    plot(measInfo.elevation, mean(measInfo.measurements(1,:,:),3), 'x-');
-% %     handles.axes2 = plot(handles.axes2, deg2rad(measInfo.elevation), mean(measInfo.measurements(1,:,:),3), 'x');
-%     polar(deg2rad(measInfo.elevation), mean(measInfo.measurements(1,:,:),3), 'x-');
-    title('sweep at az = 0');
-%     ax = gca;
-%     ax.ThetaDir = 'clockwise';
-%     ax.ThetaZeroLocation = 'top';
-% %     handles.axes2 = gca;
-% %     handles.axes2.ThetaDir = 'clockwise';
-% %     handles.axes2.ThetaZeroLocation = 'top';
-% 
-%     % plot the current slice (so at the current elevation, all the
-%     % azimuths)
-    figure(3);
-    plot(measInfo.azimuth(1:end-1), mean(measInfo.measurements(1:end-1,eli,:), 3), 'x-');
-%     polar(deg2rad(measInfo.azimuth), mean(measInfo.measurements(:,eli,:), 3), 'x-');
-    title('current azimuth sweep');
-%     ax = gca;
-%     ax.ThetaDir = 'clockwise';
-%     ax.ThetaZeroLocation = 'top';
-
-    % TODO: 3D plot
-
-    % update the axes
-    guidata(figObj, handles);
-    pause(0.01);
 end
 
-% update the stored measurement info (in the handles)
-handles.measurementInfo = measInfo;
-guidata(figObj, handles);
+
 
 
 
