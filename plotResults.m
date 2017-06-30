@@ -7,7 +7,7 @@ clear; clc; close all;
 % run calculateChamberEffects
 
 % load in the data
-load('dir_10_13dbm_lhs.mat');
+load('dir_20_13dbm_patchsource.mat');
 
 % set the 360 azimuth value to the same as the 0 azimuth value
 updatedMeas = measurementInfo.measurements;
@@ -90,3 +90,22 @@ pattern(antenna,fmax,[-180:180],0,'Type','powerdb');
 
 figure(12);
 pattern(antenna,fmax,0,[-90:90],'Type','powerdb');
+
+%% Trying to characterize effects of rotation
+
+figure(20); clf(); hold on;
+numEl = length(measurementInfo.elevation);
+numAz = length(measurementInfo.azimuth);
+mvsum = zeros(1, numAz);
+for i = 1:numEl
+    mv = mean(avged(:,i));
+%     plot(measurementInfo.azimuth, avged(:,i), 'x-', measurementInfo.azimuth, ones(1,numAz).*mv, '--');
+    plot(measurementInfo.azimuth, avged(:,i) - mv, 'x-');
+    mvsum = mvsum + (avged(:,i) - mv);
+end
+hold off;
+
+mvsum = mvsum./length(measurementInfo.elevation);
+
+
+
