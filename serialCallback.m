@@ -128,16 +128,18 @@ elevation = cast(typecast(buf(14:17), 'int32'), 'double')/1e6;
 
 % get the information fro mthe GUI
 handles = guidata(figObj);
-measInfo = handles.measurementInfo;
+
 
 % check to see if we are running a test
-data = get(hObject, 'UserData');
+data = get(handles.button_start_stop, 'UserData');
 isRunning = false;
 if isfield(data, 'running')
     isRunning = data.started;
 end
 
 if isRunning
+    measInfo = handles.measurementInfo;
+    
     % find the index for the azimuth
     [~, azi] = min(abs(azimuth - measInfo.azimuth));
     [~, eli] = min(abs(elevation - measInfo.elevation));
