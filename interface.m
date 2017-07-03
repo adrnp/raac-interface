@@ -22,7 +22,7 @@ function varargout = interface(varargin)
 
 % Edit the above text to modify the response to help interface
 
-% Last Modified by GUIDE v2.5 05-Jun-2017 16:34:40
+% Last Modified by GUIDE v2.5 03-Jul-2017 12:39:08
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -766,3 +766,81 @@ function btn_azstep_right_big_Callback(hObject, eventdata, handles)
 sendCommand(handles.s, 'move', 'Axis', 'azimuth', ...
                                'Direction', 'clockwise', ...
                                'NumSteps', 8);
+
+
+% --- Executes on slider movement.
+function slider_el_control_Callback(hObject, eventdata, handles)
+% hObject    handle to slider_el_control (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+
+stepSize = 1.8;
+
+% just need to see if the value is closer to below or above it
+val = get(hObject, 'Value');
+offset = mod(val, stepSize);
+val = val - offset;
+
+set(hObject, 'Value', val);
+set(handles.text_el_control, 'String', val);
+
+% --- Executes during object creation, after setting all properties.
+function slider_el_control_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to slider_el_control (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+% --- Executes on slider movement.
+function slider_az_control_Callback(hObject, eventdata, handles)
+% hObject    handle to slider_az_control (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+stepSize = 1.8;
+
+% just need to see if the value is closer to below or above it
+val = get(hObject, 'Value');
+offset = mod(val, stepSize);
+val = val - offset;
+
+set(hObject, 'Value', val);
+set(handles.text_az_control, 'String', val);
+
+% --- Executes during object creation, after setting all properties.
+function slider_az_control_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to slider_az_control (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+% --- Executes on button press in button_set_manual.
+function button_set_manual_Callback(hObject, eventdata, handles)
+% hObject    handle to button_set_manual (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% read the sliders to know the angles
+elAngle = get(handles.slider_el_control, 'Value');
+azAngle = get(handles.slider_azcontrol, 'Value');
+
+sendCommand(handles.s, 'moveto', 'Axis', 'Elevation',...
+                                    'Start', elAngle);
+                                
+sendCommand(handles.s, 'moveto', 'Axis', 'Azimuth',...
+                                    'Start', azAngle);

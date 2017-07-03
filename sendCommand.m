@@ -29,6 +29,10 @@ function [] = sendCommand(s, cmd, varargin)
 % below) parameters.  Can set additional 'Axis' (see below' to specify the
 % axis to apply the configuration to.
 %
+% - 'moveto' : moves to motors to a specific angle.  Sends additional
+% parameters 'Axis' (see below) to specify the axis of control and 'Start'
+% to specify the angle to which to move to.
+%
 % Additional Parameters:
 % - 'Axis': the axis for a command to apply to.  If not set will default to
 % commanding both axes.  Can be one of: 'both', 'azimuth', or 'elevation'
@@ -71,6 +75,7 @@ CMD_ZERO = 3;
 CMD_RESET = 4;
 CMD_MOVE = 5;
 CMD_CONFIGURE = 6;
+CMD_MOVE_TO = 7;
 
 % the axis type enum value
 AXIS_BOTH = 0;
@@ -182,6 +187,13 @@ switch (cmd)
         fwrite(s, measIncInt, 'int32');    % measurement increment (as micro angle)
         fwrite(s, startAngle, 'int32');     % start angle in microdegrees
         fwrite(s, endAngle, 'int32');       % end angle in microdegrees
+    
+    case 'moveto'
+        fprintf('sending move to cmd...\n');
+        fwrite(s, CMD_MOVE_TO, 'uint8');
+        fwrite(s, axisValue, 'uint8');
+        fwrite(s, startAngle, 'int32');
+        
     otherwise
         error('Invalid Command');
 end
