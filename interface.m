@@ -126,6 +126,8 @@ else
     startAngle = get(handles.slider_el_start_angle, 'Value');
     endAngle = get(handles.slider_el_end_angle, 'Value');
     
+    % get which axis to start
+    
     measInfo.elevation = startAngle:stepSize:endAngle;
     
     NMeas = round(str2double(get(handles.edit_num_measurements, 'String')));
@@ -837,7 +839,7 @@ function button_set_manual_Callback(hObject, eventdata, handles)
 
 % read the sliders to know the angles
 elAngle = get(handles.slider_el_control, 'Value');
-azAngle = get(handles.slider_az_control, 'Value');
+azAngle = get(handles.slider_azcontrol, 'Value');
 
 sendCommand(handles.s, 'moveto', 'Axis', 'Elevation',...
                                     'Start', elAngle);
