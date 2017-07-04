@@ -127,6 +127,12 @@ else
     endAngle = get(handles.slider_el_end_angle, 'Value');
     
     % get which axis to start
+    runAxis = 'both';
+    if get(handles.check_az_enabled, 'Value') == 0
+        runAxis = 'elevation';
+    elseif get(handles.check_el_enabled, 'Value') == 0
+        runAxis = 'azimuth';
+    end
     
     measInfo.elevation = startAngle:stepSize:endAngle;
     
@@ -140,7 +146,8 @@ else
     guidata(hObject, handles);
     
     % send the start command
-    sendCommand(handles.s, 'start', 'NumMeasurements', NMeas);
+    sendCommand(handles.s, 'start', 'NumMeasurements', NMeas, ...
+                                    'Axis', runAxis);
     
     % update running state
     data.started = true;
