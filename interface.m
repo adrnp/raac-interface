@@ -134,7 +134,11 @@ else
         runAxis = 'azimuth';
     end
     
-    measInfo.elevation = startAngle:stepSize:endAngle;
+    if startAngle < endAngle
+        measInfo.elevation = startAngle:stepSize:endAngle;
+    else
+        measInfo.elevation = startAngle:-stepSize:endAngle;
+    end
     
     NMeas = round(str2double(get(handles.edit_num_measurements, 'String')));
     
