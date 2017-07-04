@@ -846,7 +846,7 @@ function button_set_manual_Callback(hObject, eventdata, handles)
 
 % read the sliders to know the angles
 elAngle = get(handles.slider_el_control, 'Value');
-azAngle = get(handles.slider_azcontrol, 'Value');
+azAngle = get(handles.slider_az_control, 'Value');
 
 sendCommand(handles.s, 'moveto', 'Axis', 'Elevation',...
                                     'Start', elAngle);
