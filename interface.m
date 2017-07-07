@@ -22,7 +22,7 @@ function varargout = interface(varargin)
 
 % Edit the above text to modify the response to help interface
 
-% Last Modified by GUIDE v2.5 03-Jul-2017 12:39:08
+% Last Modified by GUIDE v2.5 07-Jul-2017 11:15:54
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -857,3 +857,10 @@ sendCommand(handles.s, 'moveto', 'Axis', 'Elevation',...
                                 
 sendCommand(handles.s, 'moveto', 'Axis', 'Azimuth',...
                                     'Start', azAngle);
+
+
+% --- Executes on button press in button_phase_set.
+function button_phase_set_Callback(hObject, eventdata, handles)
+% hObject    handle to button_phase_set (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
