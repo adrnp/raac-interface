@@ -13,12 +13,14 @@ SYNC_2 = hex2dec('B1');
 MSG_ID_MEASUREMENT = 0;
 MSG_ID_STATUS = 1;
 MSG_ID_POSITION = 2;
+MSG_ID_PHASE = 3;
 msgId = 0;  % the current message being parsed
 
 % message lengths
 MSG_LEN_MEASUREMENT = 17;  % length of the measurement message
 MSG_LEN_STATUS = 5;  % length of the status message
 MSG_LEN_POSITION = 9;
+MSG_LEN_PHASE = 8;
 
 MSG_LEN_MAX = 16;  % maximum message length - basically the buffer size
 msgLen = 0;  % the length of the message to save to the buffer
@@ -87,6 +89,9 @@ while (obj.BytesAvailable > 0)
                 case MSG_ID_POSITION
                     state = PARSE_MSG;
                     msgLen = MSG_LEN_POSITION;
+                case MSG_ID_PHASE
+                    state = PARSE_MSG;
+                    msgLen = MSG_LEN_PHASE;
                 otherwise
                     % go back to waiting for a new message
                     state = PARSE_SYNC_1;
@@ -107,7 +112,9 @@ while (obj.BytesAvailable > 0)
                     case MSG_ID_STATUS
                         handleStatus(buf, figureObj);
                     case MSG_ID_POSITION
-                        handlePosition(buf, figureObj)
+                        handlePosition(buf, figureObj);
+                    case MSG_ID_PHASE
+                        handlePhase(buf, figureObj);
                 end
             end
     end
@@ -255,5 +262,15 @@ switch axis
         set(handles.text_elevation, 'String', num2str(position));
 end
 
+function [] = handlePhase(buf, figObj)
 
+% get the handles for the GUI
+handles = guidata(figObj);
+timestamp = typecast(buf(1:4), 'uint32');
+phase0 = buf(5)*1.4;
+phase1 = buf(6)*1.4;
+phase2 = buf(7)*1.4;
+set(handles.text_phase_a0, 'String', phase0);
+set(handles.text_phase_a1, 'String', phase1);
+set(handles.text_phase_a2, 'String', phase2);
 
