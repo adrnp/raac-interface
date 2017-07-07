@@ -33,6 +33,9 @@ function [] = sendCommand(s, cmd, varargin)
 % parameters 'Axis' (see below) to specify the axis of control and 'Start'
 % to specify the angle to which to move to.
 %
+% - 'setphase' : sets the desired phase for each of the phase shifters for
+% each of the 3 antennas on the beam steering board.
+%
 % Additional Parameters:
 % - 'Axis': the axis for a command to apply to.  If not set will default to
 % commanding both axes.  Can be one of: 'both', 'azimuth', or 'elevation'
@@ -57,6 +60,10 @@ function [] = sendCommand(s, cmd, varargin)
 %
 % - 'NumSteps' : the number of steps to move
 %
+% - 'Phases' : the phase (in degrees) to command the phase shifters.  Note
+% that uncless the value is a multiple of 1.4, some rounding will occur,
+% since the phase shifters can only step in increments of 1.4 degrees.
+%
 
 % if the serial port is closed, don't even bother proceeding
 if strcmp(s.Status, 'closed')
@@ -76,6 +83,7 @@ CMD_RESET = 4;
 CMD_MOVE = 5;
 CMD_CONFIGURE = 6;
 CMD_MOVE_TO = 7;
+CMD_SET_PHASE = 8;
 
 % the axis type enum value
 AXIS_BOTH = 0;
@@ -88,11 +96,9 @@ STEP_QUARTER = 1;
 STEP_HALF = 2;
 STEP_FULL = 3;
 
-commands = {'start', 'stop', 'pause', 'zero', 'reset', 'move', 'configure'};
 axes = {'both', 'azimuth', 'elevation'};
 directions = {'clockwise', 'counterclockwise'};
 stepSizes = {'1/8', '1/4', '1/2', '1'};
-stepSizeVals = [1/8 1/4 1/2 1];
 
 % parse the variable input params
 params = inputParser;
@@ -104,6 +110,7 @@ params.addParameter('Start', 0);
 params.addParameter('End', 90);
 params.addParameter('NumMeasurements', 10);
 params.addParameter('NumSteps', 1);
+params.addParameter('Phases', [0 0 0]);
 params.parse(varargin{:});
 
 axis = params.Results.Axis;
@@ -114,6 +121,7 @@ startAngle = params.Results.Start*1e6;
 endAngle = params.Results.End*1e6;
 nmeas = params.Results.NumMeasurements;
 numSteps = params.Results.NumSteps;
+phases = params.Results.Phases;
 
 % check to make sure the axis entered is valid
 axisCmp = strcmpi(axis, axes);
@@ -135,6 +143,15 @@ if ~any(stepCmp)
     error('Invalid Step Size Option');
 end
 stepValue = find(stepCmp == 1) - 1;
+
+% need to convert from phase to phase shift value (multiple of 1.4)
+% also need to make sure that the value is positive between 0 and 360
+% TODO: maybe do this somewhere else, but then need to rename the phase
+% input, since it won't be phase getting sent
+phases(phases < 0) = phases(phases < 0) + 360;
+phases(phases >= 360) = phases(phases >= 360) - 360;
+phaseSteps = round(phases/1.4);
+
 
 % XXX: for now need to send the increment as 1/8 step sizes, so need to
 % convert from the step value selected to 1/8
@@ -193,6 +210,14 @@ switch (cmd)
         fwrite(s, CMD_MOVE_TO, 'uint8');
         fwrite(s, axisValue, 'uint8');
         fwrite(s, startAngle, 'int32');
+    
+    case 'setphase'
+        fprintf('sending phase cmd...\n');
+        fwrite(s, CMD_SET_PHASE, 'uint8');
+        fwrite(s, phaseSteps(1), 'uint8');
+        fwrite(s, phaseSteps(2), 'uint8');
+        fwrite(s, phaseSteps(3), 'uint8');
+        
         
     otherwise
         error('Invalid Command');

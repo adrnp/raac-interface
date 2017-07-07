@@ -864,3 +864,23 @@ function button_phase_set_Callback(hObject, eventdata, handles)
 % hObject    handle to button_phase_set (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+% read the user inputted values
+phases = zeros(3,1);
+phases(1) = str2double(get(handles.edit_phase_a0, 'String'));
+phases(2) = str2double(get(handles.edit_phase_a1, 'String'));
+phases(3) = str2double(get(handles.edit_phase_a2, 'String'));
+
+% need to ensure the values are proper
+% allowed [0, 360), multiples of 1.4
+phases(phases < 0) = phases(phases < 0) + 360;
+phases(phases >= 360) = phases(phases >= 360) - 360;
+phases = round(phases/1.4)*1.4;
+
+% display the adjusted values
+set(handles.edit_phase_a0, 'String', phases(1));
+set(handles.edit_phase_a1, 'String', phases(2));
+set(handles.edit_phase_a2, 'String', phases(3));
+
+% now send the command
+sendCommand(handles.s, 'setphase', 'Phases', phases);
