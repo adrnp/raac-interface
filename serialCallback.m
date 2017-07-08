@@ -20,7 +20,7 @@ msgId = 0;  % the current message being parsed
 MSG_LEN_MEASUREMENT = 17;  % length of the measurement message
 MSG_LEN_STATUS = 5;  % length of the status message
 MSG_LEN_POSITION = 9;
-MSG_LEN_PHASE = 8;
+MSG_LEN_PHASE = 7;
 
 MSG_LEN_MAX = 16;  % maximum message length - basically the buffer size
 msgLen = 0;  % the length of the message to save to the buffer
@@ -47,6 +47,7 @@ avIndex = 1;
 while (obj.BytesAvailable > 0)
     % read in a byte
     [c, count] = fread(obj, 1, 'uint8');
+    %fprintf('%X ', c);
     
     % end the loop if there is no data coming in
     if count == 0
