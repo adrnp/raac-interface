@@ -36,6 +36,8 @@ function [] = sendCommand(s, cmd, varargin)
 % - 'setphase' : sets the desired phase for each of the phase shifters for
 % each of the 3 antennas on the beam steering board.
 %
+% - 'detector' : set the type of RF detector to be used.
+%
 % Additional Parameters:
 % - 'Axis': the axis for a command to apply to.  If not set will default to
 % commanding both axes.  Can be one of: 'both', 'azimuth', or 'elevation'
@@ -64,6 +66,9 @@ function [] = sendCommand(s, cmd, varargin)
 % that uncless the value is a multiple of 1.4, some rounding will occur,
 % since the phase shifters can only step in increments of 1.4 degrees.
 %
+% - 'Type' : the type of RF detector to configure.  Can be one of 'serial'
+% or 'analog'
+%
 
 % if the serial port is closed, don't even bother proceeding
 if strcmp(s.Status, 'closed')
@@ -84,6 +89,7 @@ CMD_MOVE = 5;
 CMD_CONFIGURE = 6;
 CMD_MOVE_TO = 7;
 CMD_SET_PHASE = 8;
+CMD_CONFIGURE_DETECTOR = 9;
 
 % the axis type enum value
 AXIS_BOTH = 0;
@@ -99,6 +105,7 @@ STEP_FULL = 3;
 axes = {'both', 'azimuth', 'elevation'};
 directions = {'clockwise', 'counterclockwise'};
 stepSizes = {'1/8', '1/4', '1/2', '1'};
+types = {'serial', 'analog'};
 
 % parse the variable input params
 params = inputParser;
@@ -111,6 +118,7 @@ params.addParameter('End', 90);
 params.addParameter('NumMeasurements', 10);
 params.addParameter('NumSteps', 1);
 params.addParameter('Phases', [0 0 0]);
+params.addParameter('Type', 'serial');
 params.parse(varargin{:});
 
 axis = params.Results.Axis;
@@ -122,6 +130,7 @@ endAngle = params.Results.End*1e6;
 nmeas = params.Results.NumMeasurements;
 numSteps = params.Results.NumSteps;
 phases = params.Results.Phases;
+detectorType = params.Results.Type;
 
 % check to make sure the axis entered is valid
 axisCmp = strcmpi(axis, axes);
@@ -143,6 +152,13 @@ if ~any(stepCmp)
     error('Invalid Step Size Option');
 end
 stepValue = find(stepCmp == 1) - 1;
+
+% check to make sure detector type is valid
+typCmp = strcmpi(types, detectorType);
+if ~any(typeCmp)
+    error('Invalid Detector Type Option');
+end
+detectorTypeValue = find(typCmp == 1) - 1;
 
 % need to convert from phase to phase shift value (multiple of 1.4)
 % also need to make sure that the value is positive between 0 and 360
@@ -217,8 +233,12 @@ switch (cmd)
         fwrite(s, phaseSteps(1), 'uint8');
         fwrite(s, phaseSteps(2), 'uint8');
         fwrite(s, phaseSteps(3), 'uint8');
-        
-        
+    
+    case 'detector'
+        fprintf('sending detector type cmd...\n');
+        fwrite(s, CMD_CONFIGURE_DETECTOR, 'uint8');
+        fwrite(s, detectorTypeValue, 'uint8');
+
     otherwise
         error('Invalid Command');
 end

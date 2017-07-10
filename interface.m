@@ -22,7 +22,7 @@ function varargout = interface(varargin)
 
 % Edit the above text to modify the response to help interface
 
-% Last Modified by GUIDE v2.5 07-Jul-2017 11:15:54
+% Last Modified by GUIDE v2.5 10-Jul-2017 11:51:34
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -884,3 +884,17 @@ set(handles.edit_phase_a2, 'String', phases(3));
 
 % now send the command
 sendCommand(handles.s, 'setphase', 'Phases', phases);
+
+
+% --- Executes when selected object is changed in rgroup_detector.
+function rgroup_detector_SelectionChangedFcn(hObject, eventdata, handles)
+% hObject    handle to the selected object in rgroup_detector 
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% when a selection is made, send that selection over to the arduino
+type = 'serial';
+if get(handles.radio_analog_rf, 'Value') == 1
+    type = 'analog';
+end
+sendCommand(handles.s, 'detector', 'Type', type);
