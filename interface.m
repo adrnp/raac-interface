@@ -107,7 +107,7 @@ if isStarted
     set(handles.button_pause, 'Enable', 'Off');
 else
     % send the configuration first
-    button_send_step_config_Callback(handles.button_send_step_config, eventdata, handles);
+    sendConfiguration(handles.button_send_step_config, eventdata, handles);
     
     % set up the measurement values based on the configs
     selected = get(handles.dropdown_az_meas_inc, 'Value');
@@ -204,11 +204,10 @@ else
     set(handles.button_start_stop, 'UserData', runData);
 end
 
-% --- Executes on button press in button_send_step_config.
-function button_send_step_config_Callback(hObject, eventdata, handles)
-% hObject    handle to button_send_step_config (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+function sendConfiguration(hObject, eventdata, handles)
+% function to send the configuration to the arduino
+% configuration is all of the selection from all of the configuration named
+% boxes in the UI
 
 % read and send the elevation config values
 quarter = get(handles.radio_el_step_quarter, 'Value');
