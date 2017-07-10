@@ -107,7 +107,7 @@ if isStarted
     set(handles.button_pause, 'Enable', 'Off');
 else
     % send the configuration first
-    sendConfiguration(handles.button_send_step_config, eventdata, handles);
+    sendConfiguration(hObject, eventdata, handles);
     
     % set up the measurement values based on the configs
     selected = get(handles.dropdown_az_meas_inc, 'Value');
@@ -384,7 +384,6 @@ if (handles.serialOpen)
     set(handles.dropdown_serial_port, 'Enable', 'On');
     set(handles.button_start_stop, 'Enable', 'Off');
     set(handles.button_pause, 'Enable', 'Off');
-    set(handles.button_send_step_config, 'Enable', 'Off');
 else
     % configure the callback
     handles.s.BytesAvailableFcnCount = 2;

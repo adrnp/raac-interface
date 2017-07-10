@@ -154,11 +154,11 @@ end
 stepValue = find(stepCmp == 1) - 1;
 
 % check to make sure detector type is valid
-typCmp = strcmpi(types, detectorType);
+typeCmp = strcmpi(types, detectorType);
 if ~any(typeCmp)
     error('Invalid Detector Type Option');
 end
-detectorTypeValue = find(typCmp == 1) - 1;
+detectorTypeValue = find(typeCmp == 1) - 1;
 
 % need to convert from phase to phase shift value (multiple of 1.4)
 % also need to make sure that the value is positive between 0 and 360

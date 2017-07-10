@@ -225,7 +225,6 @@ switch status
     case STATUS_PAUSED
         % enable the buttons to send data, since this is the wakeup message
         set(handles.button_start_stop, 'Enable', 'On');
-        set(handles.button_send_step_config, 'Enable', 'On');
         fprintf('no longer running\n');
         
     case STATUS_FINISHED
@@ -268,9 +267,9 @@ function [] = handlePhase(buf, figObj)
 % get the handles for the GUI
 handles = guidata(figObj);
 timestamp = typecast(buf(1:4), 'uint32');
-phase0 = buf(5)*1.4;
-phase1 = buf(6)*1.4;
-phase2 = buf(7)*1.4;
+phase0 = double(buf(5))*1.4;
+phase1 = double(buf(6))*1.4;
+phase2 = double(buf(7))*1.4;
 set(handles.text_phase_a0, 'String', phase0);
 set(handles.text_phase_a1, 'String', phase1);
 set(handles.text_phase_a2, 'String', phase2);
